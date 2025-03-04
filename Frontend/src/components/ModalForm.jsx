@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
-const ModalForm = ({ isOpen, onClose, onSubmit, mode }) => {
+const ModalForm = ({ isOpen, onClose, onSubmit, mode, clientData }) => {
   const [rate, setRate] = useState("");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -11,10 +11,39 @@ const ModalForm = ({ isOpen, onClose, onSubmit, mode }) => {
     setStatus(e.target.value === "Active");
   };
 
-  const handlesubmit = (e) => {
+  const handlesubmit = async (e) => {
     e.preventDefault();
+    try {
+      const clientData = {
+        name,
+        email,
+        job,
+        rate: Number(rate),
+        isactive: status,
+      };
+      await onSubmit(clientData);
+      onClose();
+    } catch (error) {
+      console.log("Error adding client", error);
+    }
     onClose();
   };
+
+  useEffect(() => {
+    if (mode === "edit" && clientData) {
+      setRate(clientData.rate);
+      setName(clientData.name);
+      setEmail(clientData.email);
+      setJob(clientData.job);
+      setStatus(clientData.isactive);
+    } else {
+      setName("");
+      setEmail("");
+      setJob("");
+      setRate("");
+      setStatus(false);
+    }
+  }, [mode, clientData]);
 
   return (
     <>
